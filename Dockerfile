@@ -7,15 +7,13 @@ WORKDIR $APP_PATH
 FROM base AS build
 COPY ./src/package.json ./src/yarn.lock ./
 COPY ./src/patches ./
-RUN cd src && \
-    yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
+RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
-COPY shared ./src/shared
-RUN cd src && \
-    yarn build
+COPY src .
+COPY shared ./shared
+RUN yarn build
 RUN rm -rf src/node_modules
-RUN cd src && \
-    yarn install --production=true --frozen-lockfile --network-timeout 1000000 && \
+RUN yarn install --production=true --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 
 FROM base AS release
@@ -31,7 +29,7 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
     chown -R nodejs:nodejs $APP_PATH/build && \
     mkdir -p /var/lib/outline && \
-	chown -R nodejs:nodejs /var/lib/outline
+    chown -R nodejs:nodejs /var/lib/outline
 ENV FILE_STORAGE_LOCAL_ROOT_DIR /var/lib/outline/data
 RUN mkdir -p "$FILE_STORAGE_LOCAL_ROOT_DIR" && \
     chown -R nodejs:nodejs "$FILE_STORAGE_LOCAL_ROOT_DIR" && \

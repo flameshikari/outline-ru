@@ -6,13 +6,13 @@ WORKDIR $APP_PATH
 
 FROM base AS build
 COPY ./src/package.json ./src/yarn.lock ./
-COPY ./src/patches ./
+COPY ./src/patches ./patches
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 COPY src .
 COPY shared ./shared
 RUN yarn build
-RUN rm -rf src/node_modules
+RUN rm -rf node_modules
 RUN yarn install --production=true --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 

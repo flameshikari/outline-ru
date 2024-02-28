@@ -1,0 +1,3 @@
+[submodule "outline"]
+	path = src
+	url = git@github.com:outline/outline.git

@@ -30,7 +30,7 @@ for key, value in en_json.items():
         merged_json[key] = en_json[key]
 
 if missing_lines:
-    print('Найдены непереведенные строки:')
+    print('Найдены новые строки:')
     for key, value in missing_lines.items():
         print(f'> {key}')
     with open(merged_json_path, 'w') as target:
@@ -38,5 +38,5 @@ if missing_lines:
         target.write(obj)
     exit(1)
 else:
-    print('Все строки переведены!')
+    print('Новых строк не найдено.')
     exit(0)

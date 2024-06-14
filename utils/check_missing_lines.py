@@ -1,42 +1,44 @@
 import json
 import os
-import urllib.request
-
-workdir = os.path.abspath(os.path.dirname(__file__))
 
 def workdir(path):
     basepath = os.path.abspath(os.path.dirname(__file__))
     abspath = os.path.abspath(basepath + '/' + path)
     return abspath
 
-en_json_path = 'https://github.com/outline/outline/raw/main/shared/i18n/locales/en_US/translation.json'
+en_json_path = workdir('../src/shared/i18n/locales/en_US/translation.json')
 ru_json_path = workdir('../shared/i18n/locales/ru_RU/translation.json')
-merged_json_path = workdir('merged.json')
+merged_json_path = workdir('./merged.json')
 
-missing_lines = {}
-merged_json = {}
+translated_lines = {}
+untranslated_lines = {}
 
-with urllib.request.urlopen(en_json_path) as response:
-    en_json = json.loads(response.read().decode('utf-8'))
+exceptions = [
+    'Google Analytics',
+    'HTML',
+    'Markdown',
+    'PDF',
+    'URL'
+]
 
-with open(ru_json_path) as f:
-    ru_json = json.load(f)
+with open(en_json_path) as target:
+    en_json = json.load(target)
+
+with open(ru_json_path) as target:
+    ru_json = json.load(target)
 
 for key, value in en_json.items():
+    if key in exceptions:
+        translated_lines[key] = en_json[key]
     if key in ru_json.keys():
-        merged_json[key] = ru_json[key]
+        translated_lines[key] = ru_json[key]
     else:
-        missing_lines[key] = value
-        merged_json[key] = en_json[key]
+        untranslated_lines[key] = en_json[key]
 
-if missing_lines:
-    print('Найдены новые строки:')
-    for key, value in missing_lines.items():
-        print(f'> {key}')
-    with open(merged_json_path, 'w') as target:
-        obj = json.dumps(merged_json, indent=2, ensure_ascii=False, sort_keys=True)
-        target.write(obj)
-    exit(1)
-else:
-    print('Новых строк не найдено.')
-    exit(0)
+merged_json = {**translated_lines, **untranslated_lines}
+
+print(json.dumps(untranslated_lines, indent=2, ensure_ascii=False))
+
+with open(merged_json_path, 'w') as target:
+    obj = json.dumps(merged_json, indent=2, ensure_ascii=False)
+    target.write(obj)

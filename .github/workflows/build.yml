@@ -6,7 +6,7 @@ on:
       version:
         description: 'Version'
         required: true
-        default: '0.77.0'
+        default: '0.77.1'
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -55,7 +55,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max

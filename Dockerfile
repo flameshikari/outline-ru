@@ -1,6 +1,6 @@
 ARG APP_PATH=/opt/outline
 
-FROM node:20-alpine as base
+FROM node:20-slim as base
 ARG APP_PATH
 WORKDIR $APP_PATH
 
@@ -17,7 +17,6 @@ RUN yarn install --production=true --frozen-lockfile --network-timeout 1000000 &
     yarn cache clean
 
 FROM base AS release
-RUN apk add --no-cache curl ca-certificates
 ENV NODE_ENV production
 COPY --from=build $APP_PATH/build ./build
 COPY --from=build $APP_PATH/server ./server
@@ -25,8 +24,8 @@ COPY --from=build $APP_PATH/public ./public
 COPY --from=build $APP_PATH/.sequelizerc ./.sequelizerc
 COPY --from=build $APP_PATH/node_modules ./node_modules
 COPY --from=build $APP_PATH/package.json ./package.json
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 && \
+RUN addgroup --gid 1001 nodejs && \
+    adduser --uid 1001 --ingroup nodejs nodejs && \
     chown -R nodejs:nodejs $APP_PATH/build && \
     mkdir -p /var/lib/outline && \
     chown -R nodejs:nodejs /var/lib/outline

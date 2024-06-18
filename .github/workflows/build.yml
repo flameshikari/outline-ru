@@ -72,3 +72,4 @@ jobs:
           name: ${{ env.version }}
           tag_name: ${{ env.version }}
           body: "[Изменения в ${{ env.version }}](https://github.com/outline/outline/releases/tag/v${{ env.version }})"
+          token: ${{ secrets.TOKEN }}

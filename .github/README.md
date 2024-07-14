@@ -1,4 +1,4 @@
-# 📖 [Outline](https://github.com/outline/outline) с русским переводом
+# 📖 [Outline](https://github.com/outline/outline) с русским переводом ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/flameshikari/outline-ru/build.yml) ![asd](https://img.shields.io/github/v/release/flameshikari/outline-ru)
 
 ## Зачем?
 

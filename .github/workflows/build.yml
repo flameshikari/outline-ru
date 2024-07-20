@@ -4,8 +4,13 @@ on:
   push:
     branches:
       - master
+    paths:
+      - .github
+      - shared
+      - src
+      - Dockerfile
   workflow_dispatch:
-  
+
 
 env:
   REGISTRY: ghcr.io
@@ -65,11 +70,11 @@ jobs:
           cache-to: type=gha,mode=max
           tags:
             ${{ steps.meta.outputs.tags }}
-      
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ env.version }}
-          tag_name: ${{ env.version }}
-          body: "[Изменения в ${{ env.version }}](https://github.com/outline/outline/releases/tag/v${{ env.version }})"
+          name: ${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          body: "[Изменения в ${{ env.VERSION }}](https://github.com/outline/outline/releases/tag/v${{ env.VERSION }})"
           token: ${{ secrets.TOKEN }}

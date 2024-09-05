@@ -12,7 +12,7 @@
 
 ## Установка
 
-Всё делается по [официальной инструкции](https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t), только в качестве `image` нужно использовать `flameshikari/outline-ru:latest` или `ghcr.io/flameshikari/outline-ru:latest` (вместо `latest` можно указать версию; доступные смотреть [здесь](https://github.com/flameshikari/outline-ru/releases)).
+Всё делается по [официальной инструкции](https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t), только в качестве `image` нужно использовать `flameshikari/outline-ru:latest` или `ghcr.io/flameshikari/outline-ru:latest` (вместо `latest` желательно указать версию; доступные смотреть [здесь](https://github.com/flameshikari/outline-ru/tags)) и указать переменную `DEFAULT_LANGUAGE=ru_RU` в [docker.env](https://github.com/outline/outline/blob/main/.env.sample).
 
 ```yaml
   ...
@@ -30,3 +30,4 @@
 
   ...
 ```
+

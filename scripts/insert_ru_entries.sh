@@ -8,5 +8,5 @@ cat $CWD/src/shared/utils/date.ts | \
     > $CWD/shared/utils/date.ts
 
 cat $CWD/src/shared/i18n/index.ts | \
-    sed '/^export const languageOptions = \[/a\ \ {\n    label: "Русский (Russian)",\n    value: "ru_RU",\n  },' \
+    sed '/^export const languageOptions: LanguageOption\[\] = \[/a\ \ {\n    label: "Русский (Russian)",\n    value: "ru_RU",\n  },' \
     > $CWD/shared/i18n/index.ts

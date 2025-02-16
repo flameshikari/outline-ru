@@ -7,48 +7,124 @@ on:
       - dev
     paths:
       - .github/workflows/*
-      - shared
-      - src
+      - shared/**
+      - src/**
       - Dockerfile
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build
-    runs-on: ubuntu-latest
+    name: Build [${{ matrix.arch }}]
+    runs-on: ${{ contains(matrix.arch, 'arm') && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        arch:
+          - amd64
+          - arm64
+          # - ppc64le
+          # - s390x
+          # - arm/v7
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Extract Version
-        run: |
-          echo "VERSION=$(jq -r '.version' src/package.json)" | tee -a $GITHUB_ENV
-
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - if: ${{ github.ref == 'refs/heads/master' }}
-        name: Login to the GitHub Container Registry
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login to GitHub CR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - if: ${{ github.ref == 'refs/heads/master' }}
-        name: Login to Docker Hub
+      - name: Set Version
+        id: version
+        run: |
+          echo "version=$(jq -r '.version' src/package.json)" | tee -a $GITHUB_OUTPUT
+
+      - name: Set Metadata
+        uses: docker/metadata-action@v5
+        id: metadata
+        with:
+          images: |
+            ${{ github.repository }}
+            ghcr.io/${{ github.repository }}
+
+      - name: Build Image
+        uses: docker/build-push-action@v6
+        id: build
+        with:
+          cache-from: type=gha,scope=build-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=build-${{ matrix.arch }}
+          platforms: linux/${{ matrix.arch }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          outputs: type=image,"name=${{ github.repository }},ghcr.io/${{ github.repository }}",push-by-digest=true,name-canonical=true,push=true
+
+      - name: Export Digests
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload Digests
+        uses: actions/upload-artifact@v4
+        if: ${{ github.ref == 'refs/heads/master' }}
+        with:
+          name: digests-linux-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Publish
+    runs-on: ubuntu-24.04
+    needs: build
+    if: ${{ github.ref == 'refs/heads/master' }}
+    permissions:
+      contents: read
+      packages: write
+    env:
+      version: ${{ needs.build.outputs.version }}
+    steps:
+      - name: Download Digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract Metadata
-        id: meta
+      - name: Login to GitHub CR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set Metadata
         uses: docker/metadata-action@v5
         with:
           images: |
@@ -56,23 +132,20 @@ jobs:
             ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest
-            type=raw,value=${{ env.VERSION }}
+            type=raw,value=${{ env.version }}
 
-      - name: Build Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.ref == 'refs/heads/master' }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: ${{ steps.meta.outputs.tags }}
+      - name: Create Manifest & Push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ github.repository }}@sha256:%s ' *)
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
 
-      - if: ${{ github.ref == 'refs/heads/master' }}
-        name: Create Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: ${{ env.VERSION }}
-          tag_name: ${{ env.VERSION }}
-          body: "[Изменения в ${{ env.VERSION }}](https://github.com/outline/outline/releases/tag/v${{ env.VERSION }})"
+          name: ${{ env.version }}
+          tag_name: ${{ env.version }}
+          body: "[Изменения в ${{ env.version }}](https://github.com/outline/outline/releases/tag/v${{ env.version }})"
           token: ${{ secrets.TOKEN }}

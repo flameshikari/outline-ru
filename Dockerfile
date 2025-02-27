@@ -41,6 +41,6 @@ RUN mkdir -p "$FILE_STORAGE_LOCAL_ROOT_DIR" && \
     chmod 1777 "$FILE_STORAGE_LOCAL_ROOT_DIR"
 VOLUME /var/lib/outline/data
 USER nodejs
-HEALTHCHECK CMD wget -qO- http://localhost:${PORT}/_health | grep -q "OK" || exit 1
+HEALTHCHECK --interval=1m CMD wget -qO- "http://localhost:${PORT:-3000}/_health" | grep -q "OK" || exit 1
 EXPOSE 3000
 CMD ["yarn", "start"]

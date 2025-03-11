@@ -7,8 +7,9 @@ on:
       - dev
     paths:
       - .github/workflows/*
-      - shared/**
-      - src/**
+      - outline/**
+      - tools/translation.json
+      - tools/return_ru.patch
       - Dockerfile
   workflow_dispatch:
 
@@ -75,7 +76,6 @@ jobs:
           outputs: type=image,"name=${{ github.repository }},ghcr.io/${{ github.repository }}",push-by-digest=true,name-canonical=true,push=true
 
       - name: Export Digests
-        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           mkdir -p ${{ runner.temp }}/digests
           digest="${{ steps.build.outputs.digest }}"
@@ -83,7 +83,6 @@ jobs:
 
       - name: Upload Digests
         uses: actions/upload-artifact@v4
-        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           name: digests-linux-${{ matrix.arch }}
           path: ${{ runner.temp }}/digests/*
@@ -94,7 +93,6 @@ jobs:
     name: Publish
     runs-on: ubuntu-24.04
     needs: build
-    if: ${{ github.ref == 'refs/heads/master' }}
     permissions:
       contents: read
       packages: write
@@ -131,8 +129,9 @@ jobs:
             ${{ github.repository }}
             ghcr.io/${{ github.repository }}
           tags: |
-            type=raw,value=latest
-            type=raw,value=${{ env.version }}
+            type=raw,value=nightly,enable=${{ github.ref == 'refs/heads/dev' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value=${{ env.version }},enable=${{ github.ref == 'refs/heads/master' }}
 
       - name: Create Manifest & Push
         working-directory: ${{ runner.temp }}/digests
@@ -144,6 +143,7 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
+        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           name: ${{ env.version }}
           tag_name: ${{ env.version }}

@@ -1,2 +1,15 @@
+__mocks__
 .git
 .github
+.vscode
+.circleci
+.env*
+.eslint*
+.log
+Makefile
+Procfile
+app.json
+crowdin.yml
+build
+docker-compose.yml
+node_modules

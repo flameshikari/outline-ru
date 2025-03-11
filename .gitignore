@@ -1,1 +1,2 @@
-scripts/translation.json
+tools/*.json
+!tools/translation.json

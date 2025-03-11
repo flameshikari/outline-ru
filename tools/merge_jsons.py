@@ -8,9 +8,12 @@ def workdir(path):
     abspath = os.path.abspath(basepath + '/' + path)
     return abspath
 
-en_json_path = workdir('../src/shared/i18n/locales/en_US/translation.json')
-ru_json_path = workdir('../shared/i18n/locales/ru_RU/translation.json')
-out_json_path = workdir('./translation.json')
+
+en_json_path = workdir('../outline/shared/i18n/locales/en_US/translation.json')
+ru_json_path = workdir('./translation.json')
+
+out_json_name = 'translation_merged.json'
+out_json_path = workdir(f'./{out_json_name}')
 
 translated_lines = {}
 untranslated_lines = {}
@@ -49,4 +52,4 @@ if (untranslated_lines):
 with open(out_json_path, 'w') as target:
     obj = json.dumps(out_json, indent=2, ensure_ascii=False)
     target.write(obj + '\n')
-    print('Переведенные и непереведенные строки смержены в translation.json')
+    print(f'Переведенные и непереведенные строки смержены в {out_json_name}')

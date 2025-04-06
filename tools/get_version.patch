@@ -1,0 +1,26 @@
+diff --git a/app/components/Sidebar/components/Version.tsx b/app/components/Sidebar/components/Version.tsx
+index f2e8810b2..d4e202447 100644
+--- a/app/components/Sidebar/components/Version.tsx
++++ b/app/components/Sidebar/components/Version.tsx
+@@ -30,7 +30,7 @@ export default function Version() {
+   return (
+     <SidebarLink
+       target="_blank"
+-      href="https://github.com/outline/outline/releases"
++      href="https://github.com/flameshikari/outline-ru/releases"
+       label={
+         <>
+           v{currentVersion}
+diff --git a/server/utils/getInstallationInfo.ts b/server/utils/getInstallationInfo.ts
+index 1d11a426c..00ec42f69 100644
+--- a/server/utils/getInstallationInfo.ts
++++ b/server/utils/getInstallationInfo.ts
+@@ -2,7 +2,7 @@ import { version } from "../../package.json";
+ import fetch from "./fetch";
+ 
+ const dockerhubLink =
+-  "https://hub.docker.com/v2/repositories/outlinewiki/outline";
++  "https://hub.docker.com/v2/repositories/flameshikari/outline-ru";
+ 
+ function isFullReleaseVersion(versionName: string): boolean {
+   const releaseRegex = /^(version-)?\d+\.\d+\.\d+$/; // Matches "N.N.N" or "version-N.N.N" for dockerhub releases before v0.56.0"

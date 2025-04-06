@@ -14,8 +14,8 @@ RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 COPY ./outline .
 COPY ./tools/translation.json ./shared/i18n/locales/ru_RU/translation.json
-COPY ./tools/return_ru.patch .
-RUN patch -p1 < return_ru.patch
+COPY ./tools/*.patch .
+RUN for patch in *.patch; do patch -p1 < $patch; done
 ARG CDN_URL
 RUN yarn build
 RUN rm -rf node_modules

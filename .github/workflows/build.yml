@@ -16,6 +16,11 @@ on:
 concurrency:
   group: outline
 
+env:
+  DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+  DOCKER_BUILD_SUMMARY: false
+  DOCKER_BUILD_RECORD_UPLOAD: false
+
 jobs:
   build:
     name: Build [${{ matrix.arch }}]

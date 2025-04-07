@@ -6,10 +6,9 @@ on:
       - master
       - dev
     paths:
-      - .github/workflows/*
+      - .github/workflows/**
       - outline/**
-      - tools/translation.json
-      - tools/return_ru.patch
+      - tools/**.{json,patch}
       - Dockerfile
   workflow_dispatch:
 

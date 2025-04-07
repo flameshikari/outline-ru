@@ -19,8 +19,8 @@ COPY ${SRC_PATH}/patches ./patches
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 COPY ${SRC_PATH} .
-COPY ./tools/*.patch .
-RUN for patch in *.patch; do patch -p1 < $patch; done
+COPY ./tools/language.patch .
+RUN patch -p1 < language.patch
 COPY ./tools/translation.json ./shared/i18n/locales/ru_RU/translation.json
 ARG CDN_URL
 RUN yarn build

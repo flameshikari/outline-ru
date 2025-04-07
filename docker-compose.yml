@@ -31,13 +31,13 @@ services:
       REDIS_URL: redis://localhost:10242
       DATABASE_URL: postgres://outline:outline@localhost:10243/outline
       PGSSLMODE: disable
-      OIDC_CLIENT_ID: id
-      OIDC_CLIENT_SECRET: secret
+      OIDC_CLIENT_ID: outline
+      OIDC_CLIENT_SECRET: outline
       OIDC_AUTH_URI: http://localhost:10241/connect/authorize
       OIDC_TOKEN_URI: http://localhost:10241/connect/token
       OIDC_USERINFO_URI: http://localhost:10241/connect/userinfo
       OIDC_SCOPES: openid profile email
-      OIDC_USERNAME_CLAIM: email
+      OIDC_USERNAME_CLAIM: username
 
   outline-oidc:
     container_name: outline-oidc
@@ -56,8 +56,8 @@ services:
       CLIENTS_CONFIGURATION_INLINE: |
         [
           {
-            "ClientId": "id",
-            "ClientSecrets": ["secret"],
+            "ClientId": "outline",
+            "ClientSecrets": ["outline"],
             "RedirectUris": ["http://localhost:10240/auth/oidc.callback"],
             "AllowedGrantTypes": ["authorization_code"],
             "AllowedScopes": ["openid", "profile", "email"],
@@ -74,6 +74,11 @@ services:
               {
                 "Type": "email",
                 "Value": "mail@example.com",
+                "ValueType": "string"
+              },
+              {
+                "Type": "name",
+                "Value": "Outline",
                 "ValueType": "string"
               }
             ]

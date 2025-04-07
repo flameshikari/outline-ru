@@ -8,9 +8,13 @@ on:
     paths:
       - .github/workflows/**
       - outline/**
-      - tools/**.{json,patch}
+      - tools/translate.json
+      - tools/language.patch
       - Dockerfile
   workflow_dispatch:
+
+concurrency:
+  group: outline
 
 jobs:
   build:

@@ -5,7 +5,7 @@ volumes:
     name: outline-postgres
 
 networks:
-  default: 
+  default:
     name: outline
 
 services:

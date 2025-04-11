@@ -35,9 +35,6 @@ jobs:
         arch:
           - amd64
           - arm64
-          # - ppc64le
-          # - s390x
-          # - arm/v7
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -63,7 +60,9 @@ jobs:
       - name: Set Version
         id: version
         run: |
-          echo "version=$(jq -r '.version' src/package.json)" | tee -a $GITHUB_OUTPUT
+          version=$(jq -r '.version' outline/package.json)
+          [[ -z $version ]] && exit 1
+          echo "version=$version" | tee -a $GITHUB_OUTPUT
 
       - name: Set Metadata
         uses: docker/metadata-action@v5

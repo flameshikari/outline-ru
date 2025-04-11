@@ -6,7 +6,6 @@
 
 ## 📝 Примечания
 
-- доступные архитектуры: `amd64` и `arm64`
 - образ доступен в [Docker Hub](https://hub.docker.com/r/flameshikari/outline-ru/tags) и [GHCR](https://github.com/flameshikari/outline-ru/pkgs/container/outline-ru)
 - за основу взят перевод из [этого коммита](https://github.com/outline/outline/commit/228d1faa9fd3cbb82409d98e1443fed65adc5715)
 - сообщить о некорректном переводе можно [тут](https://github.com/flameshikari/outline-ru/discussions/8)

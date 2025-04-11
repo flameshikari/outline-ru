@@ -1,7 +1,7 @@
 ARG APP_PATH=/opt/outline
 ARG SRC_PATH=./outline
 
-FROM node:20-slim AS base
+FROM node:20 AS base
 ARG APP_PATH
 ARG SRC_PATH
 WORKDIR $APP_PATH
@@ -13,9 +13,10 @@ RUN yarn install --production=true --frozen-lockfile --network-timeout 1000000 &
 
 FROM base AS build
 RUN apt-get update && \
-    apt-get install -y patch && \
+    apt-get install -y patch cmake && \
     rm -rf /var/lib/apt/lists/*
 COPY ${SRC_PATH}/patches ./patches
+ENV NODE_OPTIONS="--max-old-space-size=24000"
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 COPY ${SRC_PATH} .

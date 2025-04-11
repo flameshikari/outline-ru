@@ -6,12 +6,20 @@ on:
       - master
       - dev
     paths:
-      - .github/workflows/*
+      - .github/workflows/**
       - outline/**
-      - tools/translation.json
-      - tools/return_ru.patch
+      - tools/translate.json
+      - tools/language.patch
       - Dockerfile
   workflow_dispatch:
+
+concurrency:
+  group: outline
+
+env:
+  DOCKER_BUILD_CHECKS_ANNOTATIONS: false
+  DOCKER_BUILD_SUMMARY: false
+  DOCKER_BUILD_RECORD_UPLOAD: false
 
 jobs:
   build:

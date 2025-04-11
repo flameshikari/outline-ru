@@ -1,0 +1,74 @@
+diff --git a/app/components/Sidebar/components/Version.tsx b/app/components/Sidebar/components/Version.tsx
+index f2e8810b2..d4e202447 100644
+--- a/app/components/Sidebar/components/Version.tsx
++++ b/app/components/Sidebar/components/Version.tsx
+@@ -30,7 +30,7 @@ export default function Version() {
+   return (
+     <SidebarLink
+       target="_blank"
+-      href="https://github.com/outline/outline/releases"
++      href="https://github.com/flameshikari/outline-ru/releases"
+       label={
+         <>
+           v{currentVersion}
+diff --git a/server/env.ts b/server/env.ts
+index 34f926029..88f97d515 100644
+--- a/server/env.ts
++++ b/server/env.ts
+@@ -245,7 +245,7 @@ export class Environment {
+    */
+   @Public
+   @IsIn(languages)
+-  public DEFAULT_LANGUAGE = environment.DEFAULT_LANGUAGE ?? "en_US";
++  public DEFAULT_LANGUAGE = environment.DEFAULT_LANGUAGE ?? "ru_RU";
+ 
+   /**
+    * A comma list of which services should be enabled on this instance – defaults to all.
+diff --git a/server/utils/getInstallationInfo.ts b/server/utils/getInstallationInfo.ts
+index 1d11a426c..00ec42f69 100644
+--- a/server/utils/getInstallationInfo.ts
++++ b/server/utils/getInstallationInfo.ts
+@@ -2,7 +2,7 @@ import { version } from "../../package.json";
+ import fetch from "./fetch";
+ 
+ const dockerhubLink =
+-  "https://hub.docker.com/v2/repositories/outlinewiki/outline";
++  "https://hub.docker.com/v2/repositories/flameshikari/outline-ru";
+ 
+ function isFullReleaseVersion(versionName: string): boolean {
+   const releaseRegex = /^(version-)?\d+\.\d+\.\d+$/; // Matches "N.N.N" or "version-N.N.N" for dockerhub releases before v0.56.0"
+diff --git a/shared/i18n/index.ts b/shared/i18n/index.ts
+index e315ef413..b580ec795 100644
+--- a/shared/i18n/index.ts
++++ b/shared/i18n/index.ts
+@@ -72,6 +72,10 @@ export const languageOptions: LanguageOption[] = [
+     label: "فارسی (Persian)",
+     value: "fa_IR",
+   },
++  {
++    label: "Русский (Russian)",
++    value: "ru_RU",
++  },
+   {
+     label: "Svenska (Swedish)",
+     value: "sv_SE",
+diff --git a/shared/utils/date.ts b/shared/utils/date.ts
+index 397b2c7a4..a45d418ae 100644
+--- a/shared/utils/date.ts
++++ b/shared/utils/date.ts
+@@ -23,6 +23,7 @@ import {
+   ptBR,
+   pt,
+   pl,
++  ru,
+   sv,
+   tr,
+   vi,
+@@ -175,6 +176,7 @@ const locales = {
+   pt_BR: ptBR,
+   pt_PT: pt,
+   pl_PL: pl,
++  ru_RU: ru,
+   sv_SE: sv,
+   tr_TR: tr,
+   uk_UA: uk,

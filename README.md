@@ -6,7 +6,6 @@
 
 ## 📝 Примечания
 
-- доступные архитектуры: `amd64` и `arm64`
 - образ доступен в [Docker Hub](https://hub.docker.com/r/flameshikari/outline-ru/tags) и [GHCR](https://github.com/flameshikari/outline-ru/pkgs/container/outline-ru)
 - за основу взят перевод из [этого коммита](https://github.com/outline/outline/commit/228d1faa9fd3cbb82409d98e1443fed65adc5715)
 - сообщить о некорректном переводе можно [тут](https://github.com/flameshikari/outline-ru/discussions/8)
@@ -14,8 +13,6 @@
 ## 🐳 Установка
 
 > перед установкой **ОБЯЗАТЕЛЬНО** прочтите [про бэкапы перед обновлением](https://docs.getoutline.com/s/hosting/doc/backups-KZtPOADCHG)
-
-> если вы используете переменную `DEFAULT_LANGUAGE`, то можете задать ей значение `ru_RU`
 
 Следуйте [официальной инструкции](https://docs.getoutline.com/s/hosting/doc/docker-7pfeLP5a8t), только в качестве `image` укажите `flameshikari/outline-ru:latest` (желательно зафиксировать версию, заменив `latest` на один из [доступных тегов](https://github.com/flameshikari/outline-ru/tags)). Например:
 

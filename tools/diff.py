@@ -35,7 +35,7 @@ for key, value in en_json.items():
 for key, value in ru_json.items():
     if key == value:
         exception_lines[key] = value
-    
+
 
 out_json = {**translated_lines, **untranslated_lines}
 

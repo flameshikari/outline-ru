@@ -553,7 +553,7 @@
   "Delete group": "Удалить группу",
   "Group options": "Параметры группы",
   "Cancel": "Отменить",
-  "Import menu options": "Import menu options",
+  "Import menu options": "Импорт опций меню",
   "Member options": "Параметры участников",
   "New document in <em>{{ collectionName }}</em>": "Новый документ в <em>{{ collectionName }}</em>",
   "New child document": "Новый вложенный документ",

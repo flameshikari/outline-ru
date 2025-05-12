@@ -39,7 +39,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 ARG DATA_PATH=/var/lib/outline/data
 ARG USER=nodejs
-RUN useradd -U ${USER} && \
+RUN useradd -m -U ${USER} && \
     mkdir -p ${DATA_PATH} && \
     chown -R ${USER}:${USER} ${APP_PATH} ${DATA_PATH}/.. && \
     chmod 1777 ${DATA_PATH}

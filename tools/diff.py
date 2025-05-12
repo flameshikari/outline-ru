@@ -3,17 +3,17 @@
 import json
 import os
 
-def workdir(path):
+def resolve(path):
     basepath = os.path.abspath(os.path.dirname(__file__))
     abspath = os.path.abspath(basepath + '/' + path)
     return abspath
 
 
-en_json_path = workdir('../outline/shared/i18n/locales/en_US/translation.json')
-ru_json_path = workdir('./translation.json')
+en_json_path = resolve('../outline/shared/i18n/locales/en_US/translation.json')
+ru_json_path = resolve('./translation.json')
 
-out_json_name = 'translation_merged.json'
-out_json_path = workdir(f'./{out_json_name}')
+out_json_name = 'translation.tmp.json'
+out_json_path = resolve(out_json_name)
 
 translated_lines = {}
 untranslated_lines = {}
@@ -28,14 +28,22 @@ with open(ru_json_path) as target:
 for key, value in en_json.items():
     if key in ru_json.keys():
         translated_lines[key] = ru_json[key]
+    elif key in en_json.keys() and f'{key}_plural' in en_json.keys():
+        for i in range(0, 3):
+            plural = f'{key}_{i}'
+            if plural in ru_json.keys():
+                translated_lines[plural] = ru_json[plural]
+    elif key.endswith('_plural'):
+        if key.replace('_plural', '_0') in ru_json.keys():
+            pass
+        else:
+            untranslated_lines[key] = en_json[key]
     else:
         untranslated_lines[key] = en_json[key]
-
 
 for key, value in ru_json.items():
     if key == value:
         exception_lines[key] = value
-
 
 out_json = {**translated_lines, **untranslated_lines}
 

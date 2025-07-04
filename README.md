@@ -19,8 +19,8 @@
 ```yaml
 services:
   outline:
-    image: flameshikari/outline-ru:0.83.0
-    # image: ghcr.io/flameshikari/outline-ru:0.83.0
+    image: flameshikari/outline-ru:0.85.0
+    # image: ghcr.io/flameshikari/outline-ru:0.85.0
     env_file: ./docker.env
     expose:
       - 3000

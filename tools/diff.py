@@ -48,7 +48,7 @@ for key, value in ru_json.items():
 out_json = {**translated_lines, **untranslated_lines}
 
 if (exception_lines):
-    print('Потенциально непереведённые строки или исключения:')
+    print('Исключения:')
     print(json.dumps(exception_lines, indent=2, ensure_ascii=False))
     print()
 

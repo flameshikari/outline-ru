@@ -1,8 +1,6 @@
 ARG APP_PATH=/opt/outline
 ARG SRC_PATH=./outline
 
-
-
 FROM node:20 AS deps
 ARG APP_PATH
 ARG SRC_PATH
@@ -30,7 +28,7 @@ COPY ./tools/translation.json ./shared/i18n/locales/ru_RU/translation.json
 ARG CDN_URL
 RUN yarn build && rm -rf node_modules
 
-FROM node:20-slim AS release
+FROM node:22-slim AS release
 ARG APP_PATH
 ARG SRC_PATH
 WORKDIR $APP_PATH

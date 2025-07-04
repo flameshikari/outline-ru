@@ -8,7 +8,7 @@ on:
     paths:
       - .github/workflows/**
       - outline/**
-      - tools/translate.json
+      - tools/translation.json
       - tools/language.patch
       - Dockerfile
   workflow_dispatch:

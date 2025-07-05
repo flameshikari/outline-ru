@@ -9,8 +9,8 @@ on:
       - .github/workflows/**
       - outline/**
       - tools/translation.json
-      - tools/language.patch
-      - Dockerfile
+      - tools/patches/**
+      - Dockerfile.prod
   workflow_dispatch:
 
 concurrency:
@@ -79,6 +79,10 @@ jobs:
           cache-from: type=gha,scope=build-${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=build-${{ matrix.arch }}
           platforms: linux/${{ matrix.arch }}
+          file: Dockerfile.prod
+          build-args: |
+            APP_PATH=/opt/outline
+            SRC_PATH=./outline
           labels: ${{ steps.metadata.outputs.labels }}
           outputs: type=image,"name=${{ github.repository }},ghcr.io/${{ github.repository }}",push-by-digest=true,name-canonical=true,push=true
 

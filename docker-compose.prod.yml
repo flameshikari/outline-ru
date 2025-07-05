@@ -1,0 +1,140 @@
+volumes:
+  outline:
+    name: outline
+  outline-postgres:
+    name: outline-postgres
+
+networks:
+  default:
+    name: outline
+
+services:
+  outline:
+    container_name: outline
+    image: flameshikari/outline-ru:nightly
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        - APP_PATH=${APP_PATH}
+        - SRC_PATH=${SRC_PATH}
+    network_mode: host
+    pull_policy: always
+    volumes:
+      - outline:/var/lib/outline/data
+    depends_on:
+      - outline-postgres
+      - outline-redis
+      - outline-oidc
+    environment:
+      FILE_STORAGE: local
+      FORCE_HTTPS: false
+      PORT: ${PORT_OUTLINE}
+      URL: http://${ADDRESS}:${PORT_OUTLINE}
+      SECRET_KEY: ${SECRET}
+      UTILS_SECRET: ${SECRET}
+      REDIS_URL: redis://${ADDRESS}:${PORT_REDIS}
+      DATABASE_URL: postgres://${COMMON}:${COMMON}@${ADDRESS}:${PORT_POSTGRES}/${COMMON}
+      PGSSLMODE: disable
+      OIDC_ISSUER_URL: http://${ADDRESS}:${PORT_OIDC}
+      OIDC_CLIENT_ID: ${COMMON}
+      OIDC_CLIENT_SECRET: ${COMMON}
+
+  outline-oidc:
+    container_name: outline-oidc
+    image: ghcr.io/soluto/oidc-server-mock:0.11.0
+    ports:
+      - ${PORT_OIDC}:80
+    healthcheck:
+      test: curl -fs ${ADDRESS}/health || exit 1
+      start_period: 2s
+      interval: 1s
+      timeout: 100ms
+      retries: 10
+    environment:
+      ASPNETCORE_URLS: http://+:80
+      ASPNETCORE_ENVIRONMENT: Development
+      CLIENTS_CONFIGURATION_INLINE: |
+        [
+          {
+            "ClientId": "${COMMON}",
+            "ClientSecrets": ["${COMMON}"],
+            "RedirectUris": ["http://${ADDRESS}:${PORT_OUTLINE}/auth/oidc.callback"],
+            "AllowedGrantTypes": ["authorization_code"],
+            "AllowedScopes": ["openid", "profile", "email"],
+            "RequirePkce": false
+          }
+        ]
+      USERS_CONFIGURATION_INLINE: |
+        [
+          {
+            "SubjectId": "1",
+            "Username": "${COMMON}",
+            "Password": "${COMMON}",
+            "Claims": [
+              {
+                "Type": "email",
+                "Value": "mail@example.com",
+                "ValueType": "string"
+              },
+              {
+                "Type": "name",
+                "Value": "Outline",
+                "ValueType": "string"
+              }
+            ]
+          }
+        ]
+      SERVER_OPTIONS_INLINE: |
+        {
+          "AccessTokenJwtType": "JWT",
+          "Discovery": {
+            "ShowKeySet": true
+          },
+          "Authentication": {
+            "CookieSameSiteMode": "Lax",
+            "CheckSessionCookieSameSiteMode": "Lax"
+          }
+        }
+      LOGIN_OPTIONS_INLINE: |
+        {
+          "AllowRememberLogin": false
+        }
+      LOGOUT_OPTIONS_INLINE: |
+        {
+          "AutomaticRedirectAfterSignOut": true
+        }
+      ASPNET_SERVICES_OPTIONS_INLINE: |
+        {
+          "ForwardedHeadersOptions": {
+            "ForwardedHeaders" : "All"
+          }
+        }
+
+  outline-redis:
+    container_name: outline-redis
+    image: redis:7
+    ports:
+      - ${PORT_REDIS}:6379
+    healthcheck:
+      test: redis-cli ping
+      interval: 10s
+      timeout: 30s
+      retries: 3
+
+  outline-postgres:
+    container_name: outline-postgres
+    image: postgres:17
+    ports:
+      - ${PORT_POSTGRES}:5432
+    volumes:
+      - outline-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    environment:
+      POSTGRES_USER: ${COMMON}
+      POSTGRES_PASSWORD: ${COMMON}
+      POSTGRES_DB: ${COMMON}

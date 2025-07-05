@@ -60,7 +60,7 @@ services:
     ```sh
     docker compose up -d --build
     ```
-    Веб-интерфейс Outline будет доступен по [этой ссылке](http://localhost:10240).
+    Веб-интерфейс Outline будет доступен по [этой ссылке](http://localhost:10240); входить с помощью OpenID Connect под логином/паролем `outline`.
 
 3. Формирование временного файла с помощью [tools/diff.py](./tools/diff.py):
     ```sh

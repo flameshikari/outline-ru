@@ -172,7 +172,7 @@
   "Collection deleted": "Коллекция удалена",
   "I’m sure – Delete": "Удалить",
   "Deleting": "Удаление",
-  "Are you sure about that? Deleting the <em>{{collectionName}}</em> collection is permanent and cannot be restored, however all published documents within will be moved to the trash.": "Вы уверены, что? Удаление коллекции <em>{{collectionName}}</em> является безвозвратным и не может быть восстановлено, однако все опубликованные в ней документы будут перемещены в корзину.",
+  "Are you sure about that? Deleting the <em>{{collectionName}}</em> collection is permanent and cannot be restored, however all published documents within will be moved to the trash.": "Вы уверены, что удаление коллекции <em>{{collectionName}}</em> является безвозвратным и не может быть восстановлено, однако все опубликованные в ней документы будут перемещены в корзину.",
   "Also, <em>{{collectionName}}</em> is being used as the start view – deleting it will reset the start view to the Home page.": "Кроме того, <em>{{collectionName}}</em> используется в качестве начального экрана — его удаление приведет к сбросу начального экрана на главную.",
   "Type a command or search": "Введите команду или выполните поиск",
   "Choose a template": "Выберите шаблон",

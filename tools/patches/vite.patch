@@ -30,6 +30,5 @@ index 32b52d44e..26d611fee 100644
 +          });
 +        },
 +      },
-       // https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#readme
-       react({
-         babel: {
+       react(),
+       // https://vite-pwa-org.netlify.app/

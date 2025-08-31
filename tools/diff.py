@@ -19,6 +19,8 @@ translated_lines = {}
 untranslated_lines = {}
 exception_lines = {}
 
+placeholder = '[NOT TRANSLATED]'
+
 with open(en_json_path) as target:
     en_json = json.load(target)
 
@@ -26,20 +28,26 @@ with open(ru_json_path) as target:
     ru_json = json.load(target)
 
 for key, value in en_json.items():
-    if key in ru_json.keys():
+    
+    # skip x_plural strings
+    if key.endswith('_plural'):
+        continue
+
+    # keep translated strings
+    elif key in ru_json.keys():
         translated_lines[key] = ru_json[key]
+
+    # process plurals
     elif key in en_json.keys() and f'{key}_plural' in en_json.keys():
         for i in range(0, 3):
             plural = f'{key}_{i}'
             if plural in ru_json.keys():
                 translated_lines[plural] = ru_json[plural]
-    elif key.endswith('_plural'):
-        if key.replace('_plural', '_0') in ru_json.keys():
-            pass
-        else:
-            untranslated_lines[key] = en_json[key]
+            else:
+                untranslated_lines[plural] = placeholder
+
     else:
-        untranslated_lines[key] = en_json[key]
+        untranslated_lines[key] = placeholder
 
 for key, value in ru_json.items():
     if key == value:

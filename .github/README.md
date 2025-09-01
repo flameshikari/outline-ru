@@ -20,8 +20,8 @@
 ```yaml
 services:
   outline:
-    image: flameshikari/outline-ru:0.87.0
-    # image: ghcr.io/flameshikari/outline-ru:0.87.0
+    image: flameshikari/outline-ru:0.87.3
+    # image: ghcr.io/flameshikari/outline-ru:0.87.3
     env_file: ./docker.env
     expose:
       - 3000
@@ -53,7 +53,7 @@ services:
     ```sh
     cd outline
     git pull --rebase --tags
-    git checkout v0.87.0
+    git checkout v0.87.3
     cd -
     ```
 

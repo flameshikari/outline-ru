@@ -28,4 +28,4 @@ def replace_version(path, version):
 
 version = get_version(resolve('../outline/package.json'))
 
-replace_version(resolve('../README.md'), version)
+replace_version(resolve('../.github/README.md'), version)

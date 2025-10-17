@@ -19,13 +19,13 @@ def get_version(path):
 def replace_version(path, version):
     with open(path, 'r') as file:
         content = file.read()
-    pattern = re.compile(r'(\d+\.\d+\.\d+)')
+    pattern = re.compile(r'(\d+\.\d+\.\d+(-\w+)?)')
 
     check = lambda x: ignore if ignore == x.group(0) else version
 
     with open(path, 'w') as file:
         file.write(pattern.sub(check, content))
 
-version = get_version(resolve('../outline/package.json'))
+version = get_version(resolve('../../outline/package.json'))
 
-replace_version(resolve('../.github/README.md'), version)
+replace_version(resolve('../../README.md'), version)

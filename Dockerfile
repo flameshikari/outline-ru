@@ -19,7 +19,7 @@ RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 COPY ${SRC_PATH} .
 COPY --from=deps  $APP_PATH/node_modules ./node_modules
-COPY ./tools/patches/* .
+COPY ./patches/* .
 RUN for patch in $(ls *.patch); do patch -p1 < $patch; done
 RUN cat <<EOF > /entrypoint.sh
 npx yarn concurrently -n "dev,i18n" \

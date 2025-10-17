@@ -20,8 +20,8 @@
 ```yaml
 services:
   outline:
-    image: flameshikari/outline-ru:1.0.0-test8
-    # image: ghcr.io/flameshikari/outline-ru:1.0.0-test8
+    image: flameshikari/outline-ru:1.0.0
+    # image: ghcr.io/flameshikari/outline-ru:1.0.0
     env_file: ./docker.env
     expose:
       - 3000
@@ -42,56 +42,68 @@ services:
 - английский перевод — [outline/shared/i18n/locales/en_US/translation.json](https://github.com/outline/outline/blob/main/shared/i18n/locales/en_US/translation.json)
 - временный файл — [translation/tmp.json]() (существует только локально)
 
-### Быстрый старт
+### Описание работы скрипта
 
-0. Клонирование репозитория с подмодулем:
-    ```sh
-    git clone --recurse-submodules git@github.com:flameshikari/outline-ru.git
-    ```
-
-1. Пулл изменений в подмодуле и переключение на коммит с целевой версией:
-    ```sh
-    cd outline
-    git pull --rebase --tags
-    git checkout v1.0.0-test8
-    cd -
-    ```
-
-2. Запуск контейнеров:
-    ```sh
-    docker compose up -d --build
-    ```
-    Веб-интерфейс Outline будет доступен по [этой ссылке](http://localhost:10240); входить с помощью OpenID Connect под логином/паролем `outline`.
-
-3. Формирование временного файла с помощью [translation/merge.py](./translation/merge.py):
-    ```sh
-    python translation/merge.py
-    ```
-    После можно приступить к переводу сфомированного временного файла. После перевода временного файла скопируйте его в файл русского перевода. Любые изменения в русском переводе обновят [открытую веб-страницу](http://localhost:10240) через пару секунд.
-
-### Описание
-
-Скрипт [translation/merge.py](./translation/merge.py) используется для объединения  английского и русского переводов во временный файл. Скрипт не имеет интерактивного режима и каких-либо аргументов/опций, он просто запускается (с выводом некоторой полезной информации) и делает следующее:
+Скрипт [translation/merge.py](./translation/merge.py) используется для объединения английского и русского переводов во временный файл. Скрипт не имеет интерактивного режима и каких-либо аргументов/опций, он просто запускается (с выводом некоторой полезной информации) и делает следующее:
 
 - сохраняет актуальные переведённые строки
 - удаляет неактуальные переведённые строки
 - если в русском переводе есть одинаковые key/value пары, то они считаются исключениями (например, `HTML` или `API`) и переносятся как есть
 - новые непереведённые строки добавляются в конец
 
-> Если во временном файле присутствуют две одинаковые непереведённые строки, но одна из них с суффиксом `_plural` (множественное число), например:
+> Также скрипт конвертирует строки с суффиксом `_plural` (англ. множественное число) в строки с числовыми суффиксами, поддерживающие склонение по падежам. Например, имеем исходные данные:
 > 
-> ```json
+> ```jsonc
 > {
+>   // ...
 >   "{{ count }} comment": "{{ count }} comment",
 >   "{{ count }} comment_plural": "{{ count }} comments"
+>   // ...
 > }
 > ```
-> …то нужно заменить эти строки на следующие (для справки: [множественное число](https://www.i18next.com/translation-function/plurals#languages-with-multiple-plurals) в [i18next](https://www.i18next.com) с [JSON-форматом версии 3](https://www.i18next.com/misc/json-format#i18next-json-v3)):
-> 
-> ```json
+> Строки после конвертации скриптом:
+> ```jsonc
 > {
->   "{{ count }} comment_0": "{{ count }} комментарий",
->   "{{ count }} comment_1": "{{ count }} комментария",
->   "{{ count }} comment_2": "{{ count }} комментариев"
+>   // ...
+>   "{{ count }} comment_0": "[NOT TRANSLATED]",
+>   "{{ count }} comment_1": "[NOT TRANSLATED]",
+>   "{{ count }} comment_2": "[NOT TRANSLATED]"
+>   // ...
 > }
 > ```
+> Конвертированные строки после перевода:
+> ```jsonc
+> {
+>   // ...
+>   "{{ count }} comment_0": "{{ count }} комментарий", // ед. число, им. падеж
+>   "{{ count }} comment_1": "{{ count }} комментария", // ед. число, род. падеж
+>   "{{ count }} comment_2": "{{ count }} комментариев" // мн. число, род. падеж
+>   // ...
+> }
+> ```
+> Документация: [множественное число](https://www.i18next.com/translation-function/plurals#languages-with-multiple-plurals) в [i18next](https://www.i18next.com) с [JSON-форматом версии 3](https://www.i18next.com/misc/json-format#i18next-json-v3)
+
+
+### Быстрый старт
+
+1. Клонирование репозитория с подмодулем:
+    ```sh
+    git clone --recurse-submodules git@github.com:flameshikari/outline-ru.git
+    ```
+
+2. Пулл изменений в подмодуле и переключение на последний доступный тег:
+    ```sh
+    git submodule foreach 'git pull --rebase --tags && git checkout v1.0.0'
+    ```
+
+3. Запуск контейнеров:
+    ```sh
+    docker compose up -d --build
+    ```
+    Веб-интерфейс Outline будет доступен по [этой ссылке](http://localhost:10240); входить с помощью OpenID Connect под логином/паролем `outline`.
+
+4. Формирование временного файла с помощью [translation/merge.py](./translation/merge.py):
+    ```sh
+    python translation/merge.py
+    ```
+    После можно приступить к переводу сфомированного временного файла. После перевода временного файла скопируйте его в файл русского перевода. Любые изменения в русском переводе обновят [открытую веб-страницу](http://localhost:10240) через пару секунд.

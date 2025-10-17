@@ -18,9 +18,9 @@ ENV NODE_OPTIONS="--max-old-space-size=24000"
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 COPY ${SRC_PATH} .
-COPY ./tools/patches/lang.patch .
-RUN for patch in $(ls *.patch); do patch -p1 < $patch; done
-COPY ./tools/translation.json ./shared/i18n/locales/ru_RU/translation.json
+COPY ./patches/lang.patch .
+RUN patch -p1 < lang.patch
+COPY ./translation/ru.json ./shared/i18n/locales/ru_RU/translation.json
 ARG CDN_URL
 RUN yarn build && rm -rf node_modules
 

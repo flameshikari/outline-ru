@@ -20,8 +20,8 @@
 ```yaml
 services:
   outline:
-    image: flameshikari/outline-ru:1.0.0
-    # image: ghcr.io/flameshikari/outline-ru:1.0.0
+    image: flameshikari/outline-ru:1.0.0-test8
+    # image: ghcr.io/flameshikari/outline-ru:1.0.0-test8
     env_file: ./docker.env
     expose:
       - 3000
@@ -38,9 +38,9 @@ services:
 
 ### Ключевые файлы
 
-- русский перевод — [tools/translation.json](./tools/translation.json)
+- русский перевод — [translation/ru.json](./translation/ru.json)
 - английский перевод — [outline/shared/i18n/locales/en_US/translation.json](https://github.com/outline/outline/blob/main/shared/i18n/locales/en_US/translation.json)
-- временный файл — [tools/translation.tmp.json]() (существует только локально)
+- временный файл — [translation/tmp.json]() (существует только локально)
 
 ### Быстрый старт
 
@@ -53,7 +53,7 @@ services:
     ```sh
     cd outline
     git pull --rebase --tags
-    git checkout v1.0.0
+    git checkout v1.0.0-test8
     cd -
     ```
 
@@ -63,15 +63,15 @@ services:
     ```
     Веб-интерфейс Outline будет доступен по [этой ссылке](http://localhost:10240); входить с помощью OpenID Connect под логином/паролем `outline`.
 
-3. Формирование временного файла с помощью [tools/diff.py](./tools/diff.py):
+3. Формирование временного файла с помощью [translation/merge.py](./translation/merge.py):
     ```sh
-    python tools/diff.py
+    python translation/merge.py
     ```
     После можно приступить к переводу сфомированного временного файла. После перевода временного файла скопируйте его в файл русского перевода. Любые изменения в русском переводе обновят [открытую веб-страницу](http://localhost:10240) через пару секунд.
 
 ### Описание
 
-Скрипт [tools/diff.py](./tools/diff.py) используется для объединения  английского и русского переводов во временный файл. Скрипт не имеет интерактивного режима и каких-либо аргументов/опций, он просто запускается (с выводом некоторой полезной информации) и делает следующее:
+Скрипт [translation/merge.py](./translation/merge.py) используется для объединения  английского и русского переводов во временный файл. Скрипт не имеет интерактивного режима и каких-либо аргументов/опций, он просто запускается (с выводом некоторой полезной информации) и делает следующее:
 
 - сохраняет актуальные переведённые строки
 - удаляет неактуальные переведённые строки

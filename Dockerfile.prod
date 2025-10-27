@@ -1,4 +1,4 @@
-FROM node:20 AS base
+FROM node:22 AS base
 ARG APP_PATH
 ARG SRC_PATH
 WORKDIR $APP_PATH
@@ -18,9 +18,9 @@ ENV NODE_OPTIONS="--max-old-space-size=24000"
 RUN yarn install --no-optional --frozen-lockfile --network-timeout 1000000 && \
     yarn cache clean
 COPY ${SRC_PATH} .
-COPY ./tools/patches/lang.patch .
-RUN for patch in $(ls *.patch); do patch -p1 < $patch; done
-COPY ./tools/translation.json ./shared/i18n/locales/ru_RU/translation.json
+COPY ./patches/lang.patch .
+RUN patch -p1 < lang.patch
+COPY ./translation/ru.json ./shared/i18n/locales/ru_RU/translation.json
 ARG CDN_URL
 RUN yarn build && rm -rf node_modules
 
@@ -32,10 +32,10 @@ ARG DATA_PATH=/var/lib/outline/data
 ARG USER=nodejs
 ARG APP_PATH
 WORKDIR $APP_PATH
-RUN useradd -m -U ${USER} && \
+RUN addgroup --gid 1001 ${USER} && \
+    adduser --uid 1001 --ingroup ${USER} ${USER} && \
     mkdir -p ${DATA_PATH} && \
-    chown -R ${USER}:${USER} ${APP_PATH} ${DATA_PATH}/.. && \
-    chmod 1777 ${DATA_PATH}
+    chown -R ${USER}:${USER} ${DATA_PATH}/..
 COPY --chown=${USER} --from=deps  $APP_PATH/node_modules ./node_modules
 COPY --chown=${USER} --from=build $APP_PATH/build ./build
 COPY --chown=${USER} --from=build $APP_PATH/server ./server

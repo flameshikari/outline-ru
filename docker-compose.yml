@@ -22,7 +22,7 @@ services:
       - outline-redis
       - outline-oidc
     volumes:
-      - ./tools/translation.json:/opt/outline/shared/i18n/locales/ru_RU/translation.json
+      - ./translation/ru.json:/opt/outline/shared/i18n/locales/ru_RU/translation.json
 
   outline-oidc:
     extends:

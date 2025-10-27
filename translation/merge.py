@@ -10,9 +10,9 @@ def resolve(path):
 
 
 en_json_path = resolve('../outline/shared/i18n/locales/en_US/translation.json')
-ru_json_path = resolve('./translation.json')
+ru_json_path = resolve('./ru.json')
 
-out_json_name = 'translation.tmp.json'
+out_json_name = 'tmp.json'
 out_json_path = resolve(out_json_name)
 
 translated_lines = {}

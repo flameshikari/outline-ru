@@ -1,4 +1,4 @@
-FROM node:22 AS base
+FROM node:22.21.0 AS base
 ARG APP_PATH
 ARG SRC_PATH
 WORKDIR $APP_PATH
@@ -24,7 +24,7 @@ COPY ./translation/ru.json ./shared/i18n/locales/ru_RU/translation.json
 ARG CDN_URL
 RUN yarn build && rm -rf node_modules
 
-FROM node:22-slim AS release
+FROM node:22.21.0-slim AS release
 RUN apt-get update && \
     apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*

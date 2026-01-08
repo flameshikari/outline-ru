@@ -6,6 +6,7 @@ __mocks__
 .env*
 .eslint*
 .log
+.yarn
 Makefile
 Procfile
 app.json

@@ -37,7 +37,7 @@ jobs:
           - arm64
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           submodules: recursive
 
@@ -111,7 +111,7 @@ jobs:
       version: ${{ needs.build.outputs.version }}
     steps:
       - name: Download Digests
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*

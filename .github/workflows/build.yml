@@ -8,8 +8,8 @@ on:
     paths:
       - .github/workflows/**
       - outline/**
-      - tools/translation.json
-      - tools/patches/**
+      - translation/ru.json
+      - patches/**
       - Dockerfile.prod
   workflow_dispatch:
 

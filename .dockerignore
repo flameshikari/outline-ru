@@ -1,12 +1,13 @@
 __mocks__
 .git
-.github
 .vscode
+.github
 .circleci
+.DS_Store
 .env*
 .eslint*
+.oxlintrc*
 .log
-.yarn
 Makefile
 Procfile
 app.json
@@ -14,3 +15,4 @@ crowdin.yml
 build
 docker-compose.yml
 node_modules
+.yarn

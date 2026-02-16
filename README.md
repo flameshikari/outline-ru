@@ -20,8 +20,8 @@
 ```yaml
 services:
   outline:
-    image: flameshikari/outline-ru:1.4.0
-    # image: ghcr.io/flameshikari/outline-ru:1.4.0
+    image: flameshikari/outline-ru:1.5.0
+    # image: ghcr.io/flameshikari/outline-ru:1.5.0
     env_file: ./docker.env
     expose:
       - 3000
@@ -93,7 +93,7 @@ services:
 
 2. Пулл изменений в подмодуле и переключение на последний доступный тег:
     ```sh
-    git submodule foreach 'git pull --rebase --tags && git checkout v1.4.0'
+    git submodule foreach 'git pull --rebase --tags && git checkout v1.5.0'
     ```
 
 3. Запуск контейнеров:

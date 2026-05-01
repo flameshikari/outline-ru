@@ -1,7 +1,10 @@
-FROM node:22.21.0
+ARG APP_PATH=/opt/outline
+ARG SRC_PATH=./outline
+
+FROM node:24.15.0 AS build
+ARG CDN_URL
 ARG APP_PATH
 ARG SRC_PATH
-ARG CDN_URL
 WORKDIR $APP_PATH
 COPY ${SRC_PATH}/package.json ${SRC_PATH}/yarn.lock ${SRC_PATH}/.yarnrc.yml ./
 COPY ${SRC_PATH}/patches ./patches
@@ -10,16 +13,34 @@ RUN corepack enable && \
     yarn install --immutable --network-timeout 1000000 && \
     yarn cache clean
 COPY ${SRC_PATH} .
-COPY ./patches/* .
-RUN for patch in $(ls *.patch); do patch -p1 < $patch; done
-RUN cat << EOF > /entrypoint.sh
-npx yarn concurrently -n "dev,i18n" \
-    "yarn dev:watch" \
-    "yarn nodemon \
-        --watch './shared/i18n/locales/ru_RU' \
-        --exec 'yarn build:i18n'"
-EOF
+COPY ./patches/lang.patch .
+RUN patch -p1 < lang.patch
+COPY ./translation/ru.json ./shared/i18n/locales/ru_RU/translation.json
+RUN yarn build && \
+    yarn workspaces focus --production
+
+FROM node:24.15.0-slim AS release
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
 ENV DATA_PATH=/var/lib/outline/data
+ENV USER=nodejs
+RUN addgroup --gid 1001 ${USER} && \
+    adduser --uid 1001 --ingroup ${USER} ${USER} && \
+    mkdir -p ${DATA_PATH} && \
+    chown -R ${USER}:${USER} ${DATA_PATH}/..
+ARG APP_PATH
+WORKDIR $APP_PATH
+COPY --chown=${USER}:${USER} --from=build $APP_PATH/node_modules ./node_modules
+COPY --chown=${USER}:${USER} --from=build $APP_PATH/build ./build
+COPY --chown=${USER}:${USER} --from=build $APP_PATH/server ./server
+COPY --chown=${USER}:${USER} --from=build $APP_PATH/public ./public
+COPY --chown=${USER}:${USER} --from=build $APP_PATH/.sequelizerc .
+COPY --chown=${USER}:${USER} --from=build $APP_PATH/package.json .
+ENV NODE_ENV=production
+ENV PORT=3000
+USER ${USER}
+EXPOSE ${PORT}
 VOLUME ${DATA_PATH}
-STOPSIGNAL SIGKILL
-ENTRYPOINT ["bash", "/entrypoint.sh"]
+HEALTHCHECK --interval=1m CMD curl -fs localhost:${PORT}/_health | grep -q OK || exit 1
+CMD ["node", "build/server/index.js"]

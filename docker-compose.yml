@@ -8,33 +8,66 @@ networks:
   default:
     name: outline
 
+x-outline-base: &outline-base
+  container_name: outline
+  depends_on:
+    - outline-services
+  environment:
+    FILE_STORAGE: local
+    FORCE_HTTPS: false
+    PORT: ${PORT:-10240}
+    PORT_VITE: ${PORT_VITE:-10242}
+    URL: http://127.0.0.1:${PORT:-10240}
+    SECRET_KEY: ${SECRET:-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef}
+    UTILS_SECRET: ${SECRET:-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef}
+    REDIS_URL: redis://outline-services
+    DATABASE_URL: postgres://outline:outline@outline-services/outline
+    PGSSLMODE: disable
+    OIDC_ISSUER_URL: http://outline-services:8080
+    OIDC_CLIENT_ID: outline
+    OIDC_CLIENT_SECRET: outline
+    OIDC_DISPLAY_NAME: OIDC
+
 services:
   outline:
-    extends:
-      file: docker-compose.prod.yml
-      service: outline
-    image: !reset
-    pull_policy: !reset
-    build:
-      dockerfile: !reset
-    depends_on:
-      - outline-postgres
-      - outline-redis
-      - outline-oidc
+    <<: *outline-base
+    profiles: [prod]
+    build: .
+    image: flameshikari/outline-ru:nightly
+    ports:
+      - ${PORT:-10240}:${PORT:-10240}
+    pull_policy: always
     volumes:
+      - outline:/var/lib/outline/data
+
+  outline-dev:
+    <<: *outline-base
+    build:
+      dockerfile: Dockerfile.dev
+    profiles: [dev]
+    ports:
+      - ${PORT:-10240}:${PORT:-10240}
+      - ${PORT_VITE:-10242}:${PORT_VITE:-10242}
+    volumes:
+      - outline:/var/lib/outline/data
       - ./translation/ru.json:/opt/outline/shared/i18n/locales/ru_RU/translation.json
 
-  outline-oidc:
-    extends:
-      file: docker-compose.prod.yml
-      service: outline-oidc
-
-  outline-redis:
-    extends:
-      file: docker-compose.prod.yml
-      service: outline-redis
-
-  outline-postgres:
-    extends:
-      file: docker-compose.prod.yml
-      service: outline-postgres
+  outline-services:
+    container_name: outline-services
+    image: outline-services
+    build: services
+    environment:
+      ISSUER: http://outline-services:8080
+      PUBLIC_URL: http://127.0.0.1:${PORT_OIDC:-10241}
+    volumes:
+      - outline-postgres:/var/lib/postgresql/data
+    ports:
+      - ${PORT_OIDC:-10241}:8080
+    healthcheck:
+      test: |
+        pg_isready -U outline && \
+        redis-cli ping && \
+        wget -qO- http://127.0.0.1:8080/health
+      interval: 10s
+      timeout: 5s
+      retries: 5

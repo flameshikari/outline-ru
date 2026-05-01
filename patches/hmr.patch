@@ -1,0 +1,122 @@
+diff --git a/app/utils/i18n.ts b/app/utils/i18n.ts
+index d20fe802a..de4987a99 100644
+--- a/app/utils/i18n.ts
++++ b/app/utils/i18n.ts
+@@ -51,5 +51,16 @@ export function initI18n(defaultLanguage = "en_US") {
+       Logger.error("Failed to initialize i18n", err);
+     });
+ 
++  // HMR: when a translation JSON changes on disk, the Vite dev server emits
++  // an "i18n:update" event (see vite.config.ts). Reload the resources for
++  // that language and ask react-i18next to re-render the tree.
++  if (typeof import.meta.hot !== "undefined") {
++    import.meta.hot.on("i18n:update", async ({ lng: changed }) => {
++      const target = unicodeCLDRtoBCP47(changed);
++      await i18n.reloadResources(target);
++      i18n.emit("languageChanged", i18n.language);
++    });
++  }
++
+   return i18n;
+ }
+diff --git a/server/middlewares/csp.ts b/server/middlewares/csp.ts
+index 477793da6..93bc7c6e9 100644
+--- a/server/middlewares/csp.ts
++++ b/server/middlewares/csp.ts
+@@ -59,8 +59,9 @@ export default function createCSPMiddleware(options?: CSPOptions) {
+ 
+   // Allow to load assets from Vite
+   if (!env.isProduction) {
+-    scriptSrc.push(env.URL.replace(`:${env.PORT}`, ":3001"));
+-    scriptSrc.push("localhost:3001");
++    const vitePort = Number(process.env.PORT_VITE) || 3001;
++    scriptSrc.push(env.URL.replace(`:${env.PORT}`, `:${vitePort}`));
++    scriptSrc.push(`localhost:${vitePort}`);
+   } else {
+     scriptSrc.push(env.URL);
+   }
+diff --git a/server/routes/app.ts b/server/routes/app.ts
+index b598752f2..11667c560 100644
+--- a/server/routes/app.ts
++++ b/server/routes/app.ts
+@@ -22,7 +22,8 @@ import { loadPublicShare } from "@server/commands/shareLoader";
+ 
+ const readFile = util.promisify(fs.readFile);
+ const entry = "app/index.tsx";
+-const viteHost = env.URL.replace(`:${env.PORT}`, ":3001");
++const vitePort = Number(process.env.PORT_VITE) || 3001;
++const viteHost = env.URL.replace(`:${env.PORT}`, `:${vitePort}`);
+ 
+ let indexHtmlCache: Buffer | undefined;
+ 
+diff --git a/server/routes/index.ts b/server/routes/index.ts
+index 0d304ec50..e32ec2da8 100644
+--- a/server/routes/index.ts
++++ b/server/routes/index.ts
+@@ -101,14 +101,23 @@ router.get("/locales/:lng.json", async (ctx) => {
+   await send(ctx, path.join(lng, "translation.json"), {
+     setHeaders: (res, _, stats) => {
+       res.setHeader("Last-Modified", formatRFC7231(stats.mtime));
+-      res.setHeader("Cache-Control", `public, max-age=${7 * Day.seconds}`);
++      res.setHeader(
++        "Cache-Control",
++        env.isDevelopment
++          ? "no-store"
++          : `public, max-age=${7 * Day.seconds}`
++      );
+       res.setHeader(
+         "ETag",
+         crypto.createHash("md5").update(stats.mtime.toISOString()).digest("hex")
+       );
+       res.setHeader("Access-Control-Allow-Origin", "*");
+     },
+-    root: path.join(__dirname, "../../shared/i18n/locales"),
++    // In dev read the source tree directly so the bind-mounted translation
++    // files (and HMR'd changes) are seen without rebuilding.
++    root: env.isDevelopment
++      ? path.join(__dirname, "../../../shared/i18n/locales")
++      : path.join(__dirname, "../../shared/i18n/locales"),
+   });
+ });
+ 
+diff --git a/vite.config.ts b/vite.config.ts
+index 829346243..244308bb3 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -31,7 +31,7 @@ export default () =>
+     publicDir: "./server/static",
+     base: (environment.CDN_URL ?? "") + "/static/",
+     server: {
+-      port: 3001,
++      port: Number(process.env.PORT_VITE),
+       host: true,
+       https: httpsConfig,
+       allowedHosts: host ? [host] : undefined,
+@@ -45,6 +45,27 @@ export default () =>
+           : { strict: true },
+     },
+     plugins: [
++      {
++        // Custom HMR for translation JSON files. Watches shared/i18n/locales
++        // and sends a custom WS event so the client can call
++        // i18n.reloadResources() instead of doing a full page reload.
++        name: "outline-i18n-hmr",
++        apply: "serve",
++        configureServer(server) {
++          const dir = path.resolve(__dirname, "shared/i18n/locales");
++          server.watcher.add(dir);
++          server.watcher.on("change", (file) => {
++            const m = /locales[\\/]([^\\/]+)[\\/]translation\.json$/.exec(file);
++            if (m) {
++              server.ws.send({
++                type: "custom",
++                event: "i18n:update",
++                data: { lng: m[1] },
++              });
++            }
++          });
++        },
++      },
+       react(),
+       // https://vite-pwa-org.netlify.app/
+       VitePWA({

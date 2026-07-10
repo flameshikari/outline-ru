@@ -98,7 +98,7 @@ services:
 
 3. Запуск контейнеров:
     ```sh
-    docker compose up -d --build
+    docker compose --profile dev up -d --build
     ```
     Веб-интерфейс Outline будет доступен по [этой ссылке](http://localhost:10240); входить с помощью OpenID Connect под логином/паролем `outline`.
 

@@ -20,8 +20,8 @@
 ```yaml
 services:
   outline:
-    image: flameshikari/outline-ru:1.8.1
-    # image: ghcr.io/flameshikari/outline-ru:1.8.1
+    image: flameshikari/outline-ru:1.9.0
+    # image: ghcr.io/flameshikari/outline-ru:1.9.0
     env_file: ./docker.env
     expose:
       - 3000
@@ -93,12 +93,12 @@ services:
 
 2. Пулл изменений в подмодуле и переключение на последний доступный тег:
     ```sh
-    git submodule foreach 'git pull --rebase --tags && git checkout v1.8.1'
+    git submodule foreach 'git pull --rebase --tags && git checkout v1.9.0'
     ```
 
 3. Запуск контейнеров:
     ```sh
-    docker compose up -d --build
+    docker compose --profile dev up -d --build
     ```
     Веб-интерфейс Outline будет доступен по [этой ссылке](http://localhost:10240); входить с помощью OpenID Connect под логином/паролем `outline`.
 

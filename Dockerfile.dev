@@ -1,7 +1,7 @@
 ARG APP_PATH=/opt/outline
 ARG SRC_PATH=./outline
 
-FROM node:24.15.0
+FROM node:24.16.0
 ARG APP_PATH
 ARG SRC_PATH
 ARG CDN_URL

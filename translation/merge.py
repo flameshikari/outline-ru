@@ -29,22 +29,9 @@ with open(ru_json_path) as target:
 
 for key, value in en_json.items():
     
-    # skip x_plural strings
-    if key.endswith('_plural'):
-        continue
-
     # keep translated strings
-    elif key in ru_json.keys():
+    if key in ru_json.keys():
         translated_lines[key] = ru_json[key]
-
-    # process plurals
-    elif key in en_json.keys() and f'{key}_plural' in en_json.keys():
-        for i in range(0, 3):
-            plural = f'{key}_{i}'
-            if plural in ru_json.keys():
-                translated_lines[plural] = ru_json[plural]
-            else:
-                untranslated_lines[plural] = placeholder
 
     else:
         untranslated_lines[key] = placeholder

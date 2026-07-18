@@ -1,7 +1,7 @@
 ARG APP_PATH=/opt/outline
 ARG SRC_PATH=./outline
 
-FROM node:24.16.0
+FROM node:26.3.0
 ARG APP_PATH
 ARG SRC_PATH
 ARG CDN_URL
@@ -9,6 +9,7 @@ WORKDIR $APP_PATH
 COPY ${SRC_PATH}/package.json ${SRC_PATH}/yarn.lock ${SRC_PATH}/.yarnrc.yml ./
 COPY ${SRC_PATH}/patches ./patches
 ENV NODE_OPTIONS='--max-old-space-size=24000'
+RUN npm install -g corepack
 RUN corepack enable && \
     yarn install --immutable --network-timeout 1000000 && \
     yarn cache clean

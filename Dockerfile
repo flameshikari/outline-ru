@@ -1,7 +1,7 @@
 ARG APP_PATH=/opt/outline
 ARG SRC_PATH=./outline
 
-FROM node:24.16.0 AS build
+FROM node:26.3.0 AS build
 ARG CDN_URL
 ARG APP_PATH
 ARG SRC_PATH
@@ -9,6 +9,7 @@ WORKDIR $APP_PATH
 COPY ${SRC_PATH}/package.json ${SRC_PATH}/yarn.lock ${SRC_PATH}/.yarnrc.yml ./
 COPY ${SRC_PATH}/patches ./patches
 ENV NODE_OPTIONS='--max-old-space-size=24000'
+RUN npm install -g corepack
 RUN corepack enable && \
     yarn install --immutable --network-timeout 1000000 && \
     yarn cache clean
@@ -19,7 +20,7 @@ COPY ./translation/ru.json ./shared/i18n/locales/ru_RU/translation.json
 RUN yarn build && \
     yarn workspaces focus --production
 
-FROM node:24.16.0-slim AS release
+FROM node:26.3.0-slim AS release
 RUN apt-get update && \
     apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*

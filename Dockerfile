@@ -25,6 +25,7 @@ RUN apt-get update && \
     apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*
 ENV DATA_PATH=/var/lib/outline/data
+ENV MALLOC_ARENA_MAX=2
 ENV USER=nodejs
 RUN addgroup --gid 1001 ${USER} && \
     adduser --uid 1001 --ingroup ${USER} ${USER} && \

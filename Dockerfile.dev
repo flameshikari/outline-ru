@@ -9,6 +9,7 @@ WORKDIR $APP_PATH
 COPY ${SRC_PATH}/package.json ${SRC_PATH}/yarn.lock ${SRC_PATH}/.yarnrc.yml ./
 COPY ${SRC_PATH}/patches ./patches
 ENV NODE_OPTIONS='--max-old-space-size=24000'
+ENV MALLOC_ARENA_MAX=2
 RUN npm install -g corepack
 RUN corepack enable && \
     yarn install --immutable --network-timeout 1000000 && \

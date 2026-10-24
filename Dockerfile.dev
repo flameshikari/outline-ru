@@ -1,7 +1,7 @@
 ARG APP_PATH=/opt/outline
 ARG SRC_PATH=./outline
 
-FROM node:26.3.0
+FROM node:26.12.1
 ARG APP_PATH
 ARG SRC_PATH
 ARG CDN_URL
@@ -16,7 +16,7 @@ RUN corepack enable && \
     yarn cache clean
 COPY ${SRC_PATH} .
 COPY ./patches/* .
-RUN for patch in $(ls *.patch); do patch -p1 < $patch; done
+RUN for patch in $(ls *.patch); do patch -p1 < "$patch" || exit 1; done
 RUN cat << EOF > /entrypoint.sh
 yarn dev:watch
 EOF

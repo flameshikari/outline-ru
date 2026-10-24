@@ -17,7 +17,7 @@ x-outline-base: &outline-base
     FORCE_HTTPS: false
     PORT: ${PORT:-10240}
     PORT_VITE: ${PORT_VITE:-10242}
-    URL: http://127.0.0.1:${PORT:-10240}
+    URL: http://localhost:${PORT:-10240}
     SECRET_KEY: ${SECRET:-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef}
     UTILS_SECRET: ${SECRET:-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef}
     REDIS_URL: redis://outline-services
@@ -58,7 +58,7 @@ services:
     build: services
     environment:
       ISSUER: http://outline-services:8080
-      PUBLIC_URL: http://127.0.0.1:${PORT_OIDC:-10241}
+      PUBLIC_URL: http://localhost:${PORT_OIDC:-10241}
     volumes:
       - outline-postgres:/var/lib/postgresql/data
     ports:

@@ -1,7 +1,7 @@
 ARG APP_PATH=/opt/outline
 ARG SRC_PATH=./outline
 
-FROM node:26.3.0 AS build
+FROM node:26.12.1 AS build
 ARG CDN_URL
 ARG APP_PATH
 ARG SRC_PATH
@@ -20,7 +20,7 @@ COPY ./translation/ru.json ./shared/i18n/locales/ru_RU/translation.json
 RUN yarn build && \
     yarn workspaces focus --production
 
-FROM node:26.3.0-slim AS release
+FROM node:26.12.1-slim AS release
 RUN apt-get update && \
     apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*

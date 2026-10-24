@@ -16,7 +16,7 @@ RUN corepack enable && \
     yarn cache clean
 COPY ${SRC_PATH} .
 COPY ./patches/* .
-RUN for patch in $(ls *.patch); do patch -p1 < $patch; done
+RUN for patch in $(ls *.patch); do patch -p1 < "$patch" || exit 1; done
 RUN cat << EOF > /entrypoint.sh
 yarn dev:watch
 EOF

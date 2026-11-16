@@ -30,33 +30,51 @@ index 60ba6df0a..20d7a11d5 100644
    }
  
    protected toOptionalString(value: string | undefined) {
-diff --git a/server/routes/index.ts b/server/routes/index.ts
-index 369322b1c..1c92faab8 100644
---- a/server/routes/index.ts
-+++ b/server/routes/index.ts
-@@ -115,14 +115,21 @@ router.get("/locales/:lng.json", async (ctx) => {
-   await send(ctx, path.join(lng, "translation.json"), {
-     setHeaders: (res, _, stats) => {
-       res.setHeader("Last-Modified", formatRFC7231(stats.mtime));
--      res.setHeader("Cache-Control", `public, max-age=${7 * Day.seconds}`);
-+      res.setHeader(
-+        "Cache-Control",
-+        env.isDevelopment
-+          ? "no-store"
-+          : `public, max-age=${7 * Day.seconds}`
-+      );
-       res.setHeader(
-         "ETag",
-         crypto.createHash("md5").update(stats.mtime.toISOString()).digest("hex")
-       );
-       res.setHeader("Access-Control-Allow-Origin", "*");
-     },
--    root: path.join(__dirname, "../../shared/i18n/locales"),
-+    root: env.isDevelopment
-+      ? path.join(__dirname, "../../../shared/i18n/locales")
-+      : path.join(__dirname, "../../shared/i18n/locales"),
-   });
- });
+diff --git a/server/routes/assets.ts b/server/routes/assets.ts
+index 9520b079e..57b9c7ff5 100644
+--- a/server/routes/assets.ts
++++ b/server/routes/assets.ts
+@@ -84,7 +84,10 @@ router.get("/locales/:lng.json", async (ctx) => {
+ 
+   const locale = await loadClientLocale(lng);
+ 
+-  ctx.set("Cache-Control", `public, max-age=${7 * Day.seconds}`);
++  ctx.set(
++    "Cache-Control",
++    env.isDevelopment ? "no-store" : `public, max-age=${7 * Day.seconds}`
++  );
+   ctx.set("ETag", locale.etag);
+   ctx.set("Access-Control-Allow-Origin", "*");
+   ctx.type = "application/json";
+@@ -116,14 +119,16 @@ const clientLocales = new Map<Language, ClientLocale>();
+  * @returns the JSON body and its ETag.
+  */
+ async function loadClientLocale(lng: Language): Promise<ClientLocale> {
+-  const cached = clientLocales.get(lng);
++  const cached = env.isDevelopment ? undefined : clientLocales.get(lng);
+   if (cached) {
+     return cached;
+   }
+ 
+   const file = path.join(
+     __dirname,
+-    "../../shared/i18n/locales",
++    env.isDevelopment
++      ? "../../../shared/i18n/locales"
++      : "../../shared/i18n/locales",
+     lng,
+     "translation.json"
+   );
+@@ -140,7 +145,9 @@ async function loadClientLocale(lng: Language): Promise<ClientLocale> {
+     etag: `"${crypto.createHash("md5").update(body).digest("hex")}"`,
+   };
+ 
+-  clientLocales.set(lng, locale);
++  if (!env.isDevelopment) {
++    clientLocales.set(lng, locale);
++  }
+   return locale;
+ }
  
 diff --git a/vite.config.mts b/vite.config.mts
 index 014826315..85f28cc00 100644
